@@ -1,12 +1,33 @@
-// ===== Configuración de ingredientes disponibles =====
-// Lista los ingredientes como chips; tocarlos alterna disponible/agotado.
-// Además permite agregar un trago nuevo eligiendo sus ingredientes.
-// Los cambios se guardan en Supabase vía funciones que exigen la clave
-// de administración (se pide una vez y queda guardada en el navegador).
+// ===== Panel de administración =====
+// Entrada con clave (validada en el servidor una sola vez); después,
+// cada acción usa esa clave automáticamente:
+//  - alternar disponibilidad de ingredientes
+//  - agregar, editar, pausar y eliminar tragos
 
 const cfg = window.SUPABASE_CONFIG || {};
+let clave = null;
+
+const gate = document.getElementById("gate");
+const panel = document.getElementById("panel");
+const gateClave = document.getElementById("g-clave");
+const gateEntrar = document.getElementById("g-entrar");
+const gateMsj = document.getElementById("g-msj");
+
 const contenedor = document.getElementById("chips");
 const estado = document.getElementById("estado");
+const listaTragos = document.getElementById("lista-tragos");
+
+const formTitulo = document.getElementById("f-titulo");
+const campoNombre = document.getElementById("f-nombre");
+const campoNota = document.getElementById("f-nota");
+const campoSeccion = document.getElementById("f-seccion");
+const picker = document.getElementById("f-picker");
+const campoNuevo = document.getElementById("f-nuevo");
+const botonNuevo = document.getElementById("f-agregar-ing");
+const campoTexto = document.getElementById("f-texto");
+const botonGuardar = document.getElementById("f-guardar");
+const botonCancelar = document.getElementById("f-cancelar");
+const mensaje = document.getElementById("f-msj");
 
 function cabeceras(extra) {
   const h = { apikey: cfg.anonKey, ...extra };
@@ -14,33 +35,73 @@ function cabeceras(extra) {
   return h;
 }
 
-function pedirClave(forzar) {
-  let clave = localStorage.getItem("claveAdmin");
-  if (!clave || forzar) {
-    clave = prompt("Clave de administración:");
-    if (clave) localStorage.setItem("claveAdmin", clave);
-  }
-  return clave;
-}
-
-async function rpc(nombre, cuerpo) {
-  const clave = pedirClave(false);
-  if (!clave) return { ok: false, sinClave: true };
+async function llamarRpc(nombre, cuerpo) {
   const respuesta = await fetch(cfg.url.replace(/\/$/, "") + "/rest/v1/rpc/" + nombre, {
     method: "POST",
     headers: cabeceras({ "Content-Type": "application/json" }),
-    body: JSON.stringify({ ...cuerpo, p_clave: clave }),
+    body: JSON.stringify(cuerpo),
   });
+  return respuesta;
+}
+
+async function rpc(nombre, cuerpo) {
+  const respuesta = await llamarRpc(nombre, { ...cuerpo, p_clave: clave });
   if (!respuesta.ok) {
-    localStorage.removeItem("claveAdmin");
     let detalle = "";
     try {
       detalle = (await respuesta.json()).message || "";
     } catch (e) {}
+    // si la clave dejó de ser válida, volver a la entrada
+    if (detalle.includes("clave")) {
+      localStorage.removeItem("claveAdmin");
+      volverAlGate();
+    }
     return { ok: false, detalle };
   }
   return { ok: true };
 }
+
+// ===== Entrada con clave =====
+
+function volverAlGate() {
+  clave = null;
+  panel.classList.add("oculto");
+  gate.classList.remove("oculto");
+  gateMsj.textContent = "La clave ya no es válida, ingresala de nuevo.";
+}
+
+async function validarYEntrar(intento, silencioso) {
+  gateMsj.textContent = silencioso ? "" : "Verificando…";
+  try {
+    const respuesta = await llamarRpc("validar_clave", { p_clave: intento });
+    const valida = respuesta.ok && (await respuesta.json()) === true;
+    if (!valida) {
+      localStorage.removeItem("claveAdmin");
+      if (!silencioso) gateMsj.textContent = "Clave incorrecta.";
+      return false;
+    }
+    clave = intento;
+    localStorage.setItem("claveAdmin", intento);
+    gate.classList.add("oculto");
+    panel.classList.remove("oculto");
+    await refrescar().catch((e) => {
+      estado.textContent = "No se pudieron cargar los datos: " + e.message;
+    });
+    return true;
+  } catch (error) {
+    if (!silencioso) gateMsj.textContent = "No se pudo verificar: " + error.message;
+    return false;
+  }
+}
+
+gateEntrar.addEventListener("click", () => {
+  const intento = gateClave.value.trim();
+  if (intento) validarYEntrar(intento, false);
+});
+
+gateClave.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") gateEntrar.click();
+});
 
 // ===== Chips de disponibilidad =====
 
@@ -62,39 +123,74 @@ function crearChipDisponibilidad(ing) {
     boton.disabled = true;
     const r = await rpc("marcar_ingrediente", { p_id: ing.id, p_disponible: nuevo }).catch(() => ({ ok: false }));
     boton.disabled = false;
-    if (r.ok) {
-      ing.disponible = nuevo;
-    } else {
-      pintar(boton, ing.disponible); // revertir
-      if (!r.sinClave) alert("No se pudo guardar. ¿Clave incorrecta?");
-    }
+    if (r.ok) ing.disponible = nuevo;
+    else pintar(boton, ing.disponible); // revertir
   });
   return boton;
 }
 
-async function cargarIngredientes() {
-  const respuesta = await fetch(
-    cfg.url.replace(/\/$/, "") + "/rest/v1/ingredientes?select=id,nombre,disponible&order=nombre.asc",
-    { headers: cabeceras() }
-  );
-  if (!respuesta.ok) throw new Error("HTTP " + respuesta.status);
-  return respuesta.json();
+// ===== Lista de tragos =====
+
+const nombreSeccion = { clasicos: "Clásicos", especiales: "Especiales" };
+
+function filaTrago(trago, ingredientesPorTrago) {
+  const li = document.createElement("li");
+  li.className = "trago-fila" + (trago.visible ? "" : " trago-fila--pausado");
+
+  const info = document.createElement("div");
+  info.className = "trago-fila-info";
+  info.innerHTML =
+    `<strong>${trago.nombre}</strong>` +
+    (trago.nota ? ` <span class="trago-fila-nota">(${trago.nota})</span>` : "") +
+    `<br /><small>${nombreSeccion[trago.seccion] || trago.seccion} · ${trago.ingredientes}</small>` +
+    (trago.visible ? "" : `<br /><small class="trago-fila-etiqueta">PAUSADO — no sale en la carta</small>`);
+
+  const acciones = document.createElement("div");
+  acciones.className = "trago-fila-acciones";
+
+  const bEditar = document.createElement("button");
+  bEditar.type = "button";
+  bEditar.className = "admin-boton admin-boton--mini admin-boton--secundario";
+  bEditar.textContent = "Editar";
+  bEditar.addEventListener("click", () => empezarEdicion(trago, ingredientesPorTrago));
+
+  const bPausar = document.createElement("button");
+  bPausar.type = "button";
+  bPausar.className = "admin-boton admin-boton--mini admin-boton--secundario";
+  bPausar.textContent = trago.visible ? "Pausar" : "Reanudar";
+  bPausar.addEventListener("click", async () => {
+    bPausar.disabled = true;
+    const r = await rpc("pausar_trago", { p_id: trago.id, p_visible: !trago.visible }).catch(() => ({ ok: false }));
+    bPausar.disabled = false;
+    if (r.ok) await refrescar();
+    else alert("No se pudo guardar." + (r.detalle ? " " + r.detalle : ""));
+  });
+
+  const bEliminar = document.createElement("button");
+  bEliminar.type = "button";
+  bEliminar.className = "admin-boton admin-boton--mini admin-boton--peligro";
+  bEliminar.textContent = "Eliminar";
+  bEliminar.addEventListener("click", async () => {
+    if (!confirm(`¿Eliminar "${trago.nombre}" definitivamente?\nSi solo querés sacarlo un tiempo, usá Pausar.`)) return;
+    bEliminar.disabled = true;
+    const r = await rpc("eliminar_trago", { p_id: trago.id }).catch(() => ({ ok: false }));
+    bEliminar.disabled = false;
+    if (r.ok) {
+      if (editandoId === trago.id) cancelarEdicion();
+      await refrescar();
+    } else alert("No se pudo eliminar." + (r.detalle ? " " + r.detalle : ""));
+  });
+
+  acciones.append(bEditar, bPausar, bEliminar);
+  li.append(info, acciones);
+  return li;
 }
 
-// ===== Formulario de trago nuevo =====
+// ===== Formulario (agregar y editar) =====
 
 const seleccion = new Set(); // nombres de ingredientes elegidos
-let textoEditado = false; // true si la usuaria tocó el campo de texto a mano
-
-const campoNombre = document.getElementById("f-nombre");
-const campoNota = document.getElementById("f-nota");
-const campoSeccion = document.getElementById("f-seccion");
-const picker = document.getElementById("f-picker");
-const campoNuevo = document.getElementById("f-nuevo");
-const botonNuevo = document.getElementById("f-agregar-ing");
-const campoTexto = document.getElementById("f-texto");
-const botonGuardar = document.getElementById("f-guardar");
-const mensaje = document.getElementById("f-msj");
+let textoEditado = false; // true si el campo de texto se tocó a mano
+let editandoId = null; // id del trago en edición, o null si es alta
 
 function actualizarTexto() {
   if (!textoEditado) campoTexto.value = [...seleccion].join(", ");
@@ -117,6 +213,47 @@ function crearChipPicker(nombre) {
   return boton;
 }
 
+function sincronizarPicker() {
+  picker.querySelectorAll(".chip").forEach((c) => {
+    const elegido = seleccion.has(c.textContent);
+    c.classList.toggle("chip--sel", elegido);
+    c.setAttribute("aria-pressed", elegido ? "true" : "false");
+  });
+}
+
+function empezarEdicion(trago, ingredientesPorTrago) {
+  editandoId = trago.id;
+  campoNombre.value = trago.nombre;
+  campoNota.value = trago.nota || "";
+  campoSeccion.value = trago.seccion;
+  campoTexto.value = trago.ingredientes;
+  textoEditado = true;
+  seleccion.clear();
+  (ingredientesPorTrago.get(trago.id) || []).forEach((n) => seleccion.add(n));
+  sincronizarPicker();
+  formTitulo.textContent = "EDITAR TRAGO";
+  botonGuardar.textContent = "Guardar cambios";
+  botonCancelar.classList.remove("oculto");
+  mensaje.textContent = "";
+  document.getElementById("form-trago").scrollIntoView({ behavior: "smooth" });
+}
+
+function cancelarEdicion() {
+  editandoId = null;
+  campoNombre.value = "";
+  campoNota.value = "";
+  campoTexto.value = "";
+  textoEditado = false;
+  seleccion.clear();
+  sincronizarPicker();
+  formTitulo.textContent = "AGREGAR TRAGO";
+  botonGuardar.textContent = "Guardar trago";
+  botonCancelar.classList.add("oculto");
+  mensaje.textContent = "";
+}
+
+botonCancelar.addEventListener("click", cancelarEdicion);
+
 campoTexto.addEventListener("input", () => {
   textoEditado = campoTexto.value.trim() !== "";
 });
@@ -124,10 +261,12 @@ campoTexto.addEventListener("input", () => {
 botonNuevo.addEventListener("click", () => {
   const nombre = campoNuevo.value.trim();
   if (!nombre) return;
-  const yaExiste = [...picker.children].some(
+  const existente = [...picker.children].find(
     (c) => c.textContent.toLowerCase() === nombre.toLowerCase()
   );
-  if (!yaExiste) {
+  if (existente) {
+    if (!seleccion.has(existente.textContent)) existente.click();
+  } else {
     const chip = crearChipPicker(nombre);
     picker.appendChild(chip);
     chip.click(); // queda seleccionado
@@ -153,61 +292,87 @@ botonGuardar.addEventListener("click", async () => {
     return;
   }
   const texto = campoTexto.value.trim() || [...seleccion].join(", ");
-
-  botonGuardar.disabled = true;
-  mensaje.textContent = "Guardando…";
-  const r = await rpc("agregar_trago", {
+  const datos = {
     p_seccion: campoSeccion.value,
     p_nombre: nombre,
     p_nota: campoNota.value.trim() || null,
     p_ingredientes_texto: texto,
     p_ingredientes: [...seleccion],
-  }).catch(() => ({ ok: false }));
+  };
+
+  botonGuardar.disabled = true;
+  mensaje.textContent = "Guardando…";
+  const r = editandoId
+    ? await rpc("editar_trago", { p_id: editandoId, ...datos }).catch(() => ({ ok: false }))
+    : await rpc("agregar_trago", datos).catch(() => ({ ok: false }));
   botonGuardar.disabled = false;
 
   if (r.ok) {
-    mensaje.textContent = `Listo: "${nombre}" ya está en la carta.`;
-    campoNombre.value = "";
-    campoNota.value = "";
-    campoTexto.value = "";
-    textoEditado = false;
-    seleccion.clear();
-    await refrescar(); // los ingredientes nuevos aparecen en ambas listas
+    const verbo = editandoId ? "actualizado" : "agregado";
+    cancelarEdicion();
+    mensaje.textContent = `Listo: "${nombre}" ${verbo}.`;
+    await refrescar();
   } else {
-    mensaje.textContent =
-      "No se pudo guardar. " + (r.detalle || (r.sinClave ? "Falta la clave." : "¿Clave incorrecta?"));
+    mensaje.textContent = "No se pudo guardar." + (r.detalle ? " " + r.detalle : "");
   }
 });
 
-// ===== Carga inicial =====
+// ===== Carga de datos =====
+
+async function consultar(ruta) {
+  const respuesta = await fetch(cfg.url.replace(/\/$/, "") + "/rest/v1/" + ruta, {
+    headers: cabeceras(),
+  });
+  if (!respuesta.ok) throw new Error("HTTP " + respuesta.status);
+  return respuesta.json();
+}
 
 async function refrescar() {
-  const ingredientes = await cargarIngredientes();
+  const [ingredientes, tragos, relaciones] = await Promise.all([
+    consultar("ingredientes?select=id,nombre,disponible&order=nombre.asc"),
+    consultar("tragos?select=id,seccion,nombre,nota,ingredientes,visible&order=seccion.asc,orden.asc,id.asc"),
+    consultar("trago_ingredientes?select=trago_id,ingrediente_id"),
+  ]);
+
+  const nombrePorId = new Map(ingredientes.map((i) => [i.id, i.nombre]));
+  const ingredientesPorTrago = new Map();
+  relaciones.forEach((r) => {
+    if (!ingredientesPorTrago.has(r.trago_id)) ingredientesPorTrago.set(r.trago_id, []);
+    const nombre = nombrePorId.get(r.ingrediente_id);
+    if (nombre) ingredientesPorTrago.get(r.trago_id).push(nombre);
+  });
+
   contenedor.querySelectorAll(".chip").forEach((c) => c.remove());
   picker.innerHTML = "";
   ingredientes.forEach((ing) => {
     contenedor.appendChild(crearChipDisponibilidad(ing));
-    const chip = crearChipPicker(ing.nombre);
-    if (seleccion.has(ing.nombre)) {
-      chip.classList.add("chip--sel");
-      chip.setAttribute("aria-pressed", "true");
-    }
-    picker.appendChild(chip);
+    picker.appendChild(crearChipPicker(ing.nombre));
   });
+  sincronizarPicker();
+
+  listaTragos.innerHTML = "";
+  tragos.forEach((t) => listaTragos.appendChild(filaTrago(t, ingredientesPorTrago)));
+
+  if (estado.isConnected) {
+    if (ingredientes.length > 0) estado.remove();
+    else estado.textContent = "No hay ingredientes cargados todavía.";
+  }
 }
+
+// ===== Arranque =====
 
 async function iniciar() {
   if (!cfg.url || !cfg.anonKey) {
-    estado.textContent = "Falta configurar Supabase en config.js";
+    gateMsj.textContent = "Falta configurar Supabase en config.js";
+    gateEntrar.disabled = true;
     return;
   }
-  try {
-    await refrescar();
-    if (contenedor.querySelectorAll(".chip").length > 0) estado.remove();
-    else estado.textContent = "No hay ingredientes cargados todavía.";
-  } catch (error) {
-    estado.textContent = "No se pudieron cargar los ingredientes: " + error.message;
+  const guardada = localStorage.getItem("claveAdmin");
+  if (guardada) {
+    const entro = await validarYEntrar(guardada, true);
+    if (entro) return;
   }
+  gateClave.focus();
 }
 
 iniciar();
