@@ -18,12 +18,13 @@ async function cargarMenu() {
       "/rest/v1/tragos" +
       "?select=seccion,nombre,nota,ingredientes" +
       "&visible=is.true&order=orden.asc,id.asc";
-    const respuesta = await fetch(url, {
-      headers: {
-        apikey: cfg.anonKey,
-        Authorization: "Bearer " + cfg.anonKey,
-      },
-    });
+    // con las keys nuevas (sb_publishable_...) alcanza el header apikey;
+    // el Bearer solo corresponde a las keys legacy con formato JWT (eyJ...)
+    const headers = { apikey: cfg.anonKey };
+    if (cfg.anonKey.startsWith("eyJ")) {
+      headers.Authorization = "Bearer " + cfg.anonKey;
+    }
+    const respuesta = await fetch(url, { headers });
     if (!respuesta.ok) throw new Error("HTTP " + respuesta.status);
     const tragos = await respuesta.json();
     if (!Array.isArray(tragos) || tragos.length === 0) return false;

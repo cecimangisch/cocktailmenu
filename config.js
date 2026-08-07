@@ -4,6 +4,6 @@
 //   anonKey: "eyJ..." (la clave "anon public" — es segura para exponer en el sitio)
 // Si quedan vacíos, el sitio muestra el menú estático de respaldo.
 window.SUPABASE_CONFIG = {
-  url: "",
-  anonKey: "",
+  url: "https://yvmienvnpgxihxtsshpo.supabase.co",
+  anonKey: "sb_publishable_yZQvzC2kKnT3r-0qCAAPgw_IMBEmAKZ",
 };
