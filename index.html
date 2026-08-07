@@ -17,12 +17,12 @@
     <!-- ===== Sección verde ===== -->
     <section class="seccion seccion--verde">
       <header class="cabecera">
-        <h1 class="titulo reveal">COCKTAIL</h1>
-        <p class="titulo-script reveal">Menu</p>
+        <h1 class="titulo reveal-titulo">COCKTAIL</h1>
+        <p class="titulo-script reveal-script"><span>Menu</span></p>
       </header>
 
       <div class="bloque">
-        <ul class="lista">
+        <ul class="lista" data-seccion="clasicos">
           <li class="trago reveal">
             <h2>ESPRESSO MARTINI</h2>
             <p>Vodka, Licor de Café, Bailys, Shot de espresso</p>
@@ -41,25 +41,25 @@
           </li>
         </ul>
 
-        <figure class="ilustracion reveal reveal--lento">
+        <figure class="ilustracion reveal-ilustracion">
           <img src="img/copa.png" alt="" width="560" height="850" />
         </figure>
       </div>
     </section>
 
     <!-- ===== Borde de papel rasgado ===== -->
-    <div class="rasgado" aria-hidden="true">
+    <div class="rasgado reveal-rasgado" aria-hidden="true">
       <img src="img/rasgado.png" alt="" width="2121" height="320" />
     </div>
 
     <!-- ===== Sección papel ===== -->
     <section class="seccion seccion--papel">
       <div class="bloque bloque--invertido">
-        <figure class="ilustracion ilustracion--limas reveal reveal--lento">
+        <figure class="ilustracion ilustracion--limas reveal-ilustracion">
           <img src="img/limas.png" alt="" width="740" height="510" />
         </figure>
 
-        <ul class="lista">
+        <ul class="lista" data-seccion="especiales">
           <li class="trago trago--verde reveal">
             <h2>LUQUI'S NEGRONI</h2>
             <p>Vermouth, Campari, Granadina</p>
@@ -80,23 +80,7 @@
       </div>
     </section>
 
-    <script>
-      const observador = new IntersectionObserver(
-        (entradas) => {
-          entradas.forEach((entrada) => {
-            if (entrada.isIntersecting) {
-              entrada.target.classList.add("visible");
-              observador.unobserve(entrada.target);
-            }
-          });
-        },
-        { threshold: 0.15, rootMargin: "0px 0px -8% 0px" }
-      );
-
-      document.querySelectorAll(".reveal").forEach((el, i) => {
-        el.style.transitionDelay = `${(i % 4) * 90}ms`;
-        observador.observe(el);
-      });
-    </script>
+    <script src="config.js"></script>
+    <script src="menu.js"></script>
   </body>
 </html>
