@@ -74,3 +74,10 @@ footer {
   main { padding-top: 2rem; }
   figure { border-radius: .8rem; }
 }
+
+.imagen {
+  width: 100%;
+  height: auto;
+  border-radius: 1.25rem;
+  box-shadow: 0 1.5rem 4rem rgba(0, 0, 0, .35);
+}
