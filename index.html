@@ -1,30 +1,110 @@
-<!-- <!doctype html>
+<!doctype html>
 <html lang="es">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#17120f" />
-    <title>Carta de tragos</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#1b4a31" />
+    <title>Cocktail Menu</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700;800&family=Monsieur+La+Doulaise&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="estilos.css" />
   </head>
   <body>
-    <main>
-      <header>
-        <p class="eyebrow">BAR DE CASA</p>
-        <h1>Carta de tragos</h1>
-        <p class="subtitulo">Elegí algo rico y brindemos.</p>
+    <!-- ===== Sección verde ===== -->
+    <section class="seccion seccion--verde">
+      <header class="cabecera">
+        <h1 class="titulo reveal">COCKTAIL</h1>
+        <p class="titulo-script reveal">Menu</p>
       </header>
 
-      <figure>
-        <img
-          src="carta-ejemplo.png"
-          alt="Imagen de ejemplo para la carta de tragos"
+      <div class="bloque">
+        <ul class="lista">
+          <li class="trago reveal">
+            <h2>ESPRESSO MARTINI</h2>
+            <p>Vodka, Licor de Café, Bailys, Shot de espresso</p>
+          </li>
+          <li class="trago reveal">
+            <h2>NEGRONI <span class="nota">(NORMAL, SBAGLIATO)</span></h2>
+            <p>Vermouth, Campari, Gin</p>
+          </li>
+          <li class="trago reveal">
+            <h2>GIN TONIC</h2>
+            <p>Gin, Tónica, Pepino/Frutos Rojos/Lima</p>
+          </li>
+          <li class="trago reveal">
+            <h2>MARGARITA <span class="nota">(SPICY OPC)</span></h2>
+            <p>Tequila, Cointreau, Lima, Syrup</p>
+          </li>
+        </ul>
+
+        <figure class="ilustracion ilustracion--copa reveal reveal--lento" aria-hidden="true">
+          <!-- Reemplazar por la ilustración real de la copa (ej: img/copa.png) -->
+          <img src="carta-ejemplo.png" alt="" class="placeholder" hidden />
+          <div class="placeholder-caja">Ilustración<br />copa</div>
+        </figure>
+      </div>
+    </section>
+
+    <!-- ===== Borde rasgado ===== -->
+    <div class="rasgado" aria-hidden="true">
+      <svg viewBox="0 0 1440 90" preserveAspectRatio="none">
+        <path
+          d="M0,55 L60,48 L130,60 L210,42 L290,58 L360,40 L440,62 L520,45 L600,58 L680,38 L760,60 L840,44 L910,64 L990,42 L1070,58 L1150,40 L1230,60 L1310,46 L1380,58 L1440,44 L1440,90 L0,90 Z"
+          fill="var(--papel)"
         />
-      </figure>
+      </svg>
+    </div>
 
-      <footer>Escaneá · Elegí · Disfrutá</footer>
-    </main>
+    <!-- ===== Sección papel ===== -->
+    <section class="seccion seccion--papel">
+      <div class="bloque bloque--invertido">
+        <figure class="ilustracion ilustracion--limas reveal reveal--lento" aria-hidden="true">
+          <!-- Reemplazar por la ilustración real de las limas (ej: img/limas.png) -->
+          <div class="placeholder-caja placeholder-caja--verde">Ilustración<br />limas</div>
+        </figure>
+
+        <ul class="lista">
+          <li class="trago trago--verde reveal">
+            <h2>LUQUI'S NEGRONI</h2>
+            <p>Vermouth, Campari, Granadina</p>
+          </li>
+          <li class="trago trago--verde reveal">
+            <h2>CORAL SUNSET</h2>
+            <p>Tequila, blood orange, lime</p>
+          </li>
+          <li class="trago trago--verde reveal">
+            <h2>SEASIDE MULE</h2>
+            <p>Vodka, ginger beer, lime</p>
+          </li>
+          <li class="trago trago--verde reveal">
+            <h2>TROPICAL STORM</h2>
+            <p>Spiced rum, passionfruit, orange</p>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <script>
+      const observador = new IntersectionObserver(
+        (entradas) => {
+          entradas.forEach((entrada) => {
+            if (entrada.isIntersecting) {
+              entrada.target.classList.add("visible");
+              observador.unobserve(entrada.target);
+            }
+          });
+        },
+        { threshold: 0.15, rootMargin: "0px 0px -8% 0px" }
+      );
+
+      document.querySelectorAll(".reveal").forEach((el, i) => {
+        el.style.transitionDelay = `${(i % 4) * 90}ms`;
+        observador.observe(el);
+      });
+    </script>
   </body>
-</html> -->
-
-<img src="carta-ejemplo.png" alt="Imagen de ejemplo para la carta de tragos" width="100%" height="auto" class="imagen"/>
+</html>

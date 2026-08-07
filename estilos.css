@@ -1,83 +1,182 @@
 :root {
-  color-scheme: dark;
-  font-family: Georgia, "Times New Roman", serif;
-  background: #17120f;
-  color: #f7ead7;
+  /* Colores muestreados del PNG — reemplazar por los definitivos */
+  --verde: #1b4a31;
+  --verde-oscuro: #14402b;
+  --crema: #f4eeda;
+  --papel: #e8e8e0;
+
+  --fuente-sans: "Poppins", "Helvetica Neue", Arial, sans-serif;
+  --fuente-script: "Monsieur La Doulaise", cursive;
 }
 
-* { box-sizing: border-box; }
+* {
+  box-sizing: border-box;
+  margin: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
 
 body {
-  margin: 0;
+  font-family: var(--fuente-sans);
+  background: var(--verde);
+  color: var(--crema);
   min-height: 100vh;
-  background:
-    radial-gradient(circle at 50% 0%, rgba(179, 123, 72, .2), transparent 42rem),
-    #17120f;
+  min-height: 100dvh;
 }
 
-main {
-  width: min(100%, 56rem);
-  margin: 0 auto;
-  padding: 3rem 1rem 2rem;
+.seccion {
+  padding-left: max(1.5rem, env(safe-area-inset-left));
+  padding-right: max(1.5rem, env(safe-area-inset-right));
+}
+
+.seccion--verde {
+  background: var(--verde);
+  padding-top: max(3.5rem, env(safe-area-inset-top));
+  padding-bottom: 4rem;
+}
+
+.seccion--papel {
+  background: var(--papel);
+  color: var(--verde-oscuro);
+  padding-top: 2rem;
+  padding-bottom: max(4rem, env(safe-area-inset-bottom));
+}
+
+/* ===== Cabecera ===== */
+.cabecera {
   text-align: center;
+  margin-bottom: clamp(2.5rem, 8vw, 5rem);
 }
 
-header { margin-bottom: 2rem; }
-
-.eyebrow {
-  margin: 0 0 .65rem;
-  color: #d4a96d;
-  font-family: Arial, sans-serif;
-  font-size: .72rem;
-  font-weight: 700;
-  letter-spacing: .28em;
-}
-
-h1 {
-  margin: 0;
-  font-size: clamp(2.4rem, 8vw, 5rem);
-  font-weight: 400;
+.titulo {
+  font-weight: 800;
+  font-size: clamp(3rem, 13vw, 7.5rem);
+  letter-spacing: 0.04em;
   line-height: 1;
 }
 
-.subtitulo {
-  margin: 1rem 0 0;
-  color: #cdbda8;
-  font-size: clamp(1rem, 3vw, 1.25rem);
+.titulo-script {
+  font-family: var(--fuente-script);
+  font-weight: 400;
+  font-size: clamp(3.2rem, 12vw, 7rem);
+  line-height: 0.9;
+  margin-top: -0.15em;
 }
 
-figure {
-  margin: 0;
-  overflow: hidden;
-  border: 1px solid rgba(212, 169, 109, .35);
-  border-radius: 1.25rem;
-  background: #211a16;
-  box-shadow: 0 1.5rem 4rem rgba(0, 0, 0, .35);
+/* ===== Layout de bloques ===== */
+.bloque {
+  width: min(100%, 62rem);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2.5rem;
+  align-items: center;
 }
 
-img {
+@media (min-width: 640px) {
+  .bloque {
+    grid-template-columns: 1.3fr 1fr;
+  }
+  .bloque--invertido {
+    grid-template-columns: 1fr 1.3fr;
+  }
+}
+
+/* ===== Tragos ===== */
+.lista {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: clamp(1.6rem, 4vw, 2.4rem);
+}
+
+.trago h2 {
+  font-size: clamp(1.25rem, 4.5vw, 1.7rem);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.trago .nota {
+  font-size: 0.55em;
+  font-weight: 700;
+  vertical-align: 0.25em;
+  letter-spacing: 0.03em;
+}
+
+.trago p {
+  font-size: clamp(0.95rem, 3.5vw, 1.15rem);
+  font-weight: 400;
+  margin-top: 0.25rem;
+}
+
+.trago--verde {
+  color: var(--verde-oscuro);
+}
+
+/* ===== Ilustraciones ===== */
+.ilustracion {
+  display: flex;
+  justify-content: center;
+}
+
+.ilustracion img {
+  max-width: 100%;
+  height: auto;
+}
+
+.placeholder-caja {
+  width: clamp(10rem, 40vw, 16rem);
+  aspect-ratio: 3 / 4;
+  border: 2px dashed rgba(244, 238, 218, 0.5);
+  border-radius: 0.5rem;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  font-size: 0.85rem;
+  opacity: 0.7;
+}
+
+.placeholder-caja--verde {
+  border-color: rgba(20, 64, 43, 0.4);
+  aspect-ratio: 4 / 3;
+}
+
+/* ===== Borde rasgado ===== */
+.rasgado {
+  background: var(--verde);
+  line-height: 0;
+}
+
+.rasgado svg {
+  width: 100%;
+  height: clamp(28px, 6vw, 90px);
   display: block;
-  width: 100%;
-  height: auto;
 }
 
-footer {
-  margin-top: 1.5rem;
-  color: #8f7e6c;
-  font-family: Arial, sans-serif;
-  font-size: .7rem;
-  letter-spacing: .18em;
-  text-transform: uppercase;
+/* ===== Animaciones de aparición ===== */
+.reveal {
+  opacity: 0;
+  transform: translateY(1.5rem);
+  transition:
+    opacity 0.7s ease-out,
+    transform 0.7s ease-out;
 }
 
-@media (max-width: 36rem) {
-  main { padding-top: 2rem; }
-  figure { border-radius: .8rem; }
+.reveal--lento {
+  transition-duration: 1s;
 }
 
-.imagen {
-  width: 100%;
-  height: auto;
-  border-radius: 1.25rem;
-  box-shadow: 0 1.5rem 4rem rgba(0, 0, 0, .35);
+.reveal.visible {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
 }
