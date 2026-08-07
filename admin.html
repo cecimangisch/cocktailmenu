@@ -22,6 +22,46 @@
         <p class="admin-estado" id="estado">Cargando ingredientes…</p>
       </div>
 
+      <div class="admin-form" id="form-trago">
+        <h2 class="admin-subtitulo">AGREGAR TRAGO</h2>
+
+        <label class="admin-campo">
+          <span>Nombre</span>
+          <input id="f-nombre" type="text" autocomplete="off" placeholder="Mojito" />
+        </label>
+
+        <label class="admin-campo">
+          <span>Nota (opcional)</span>
+          <input id="f-nota" type="text" autocomplete="off" placeholder="Spicy opc" />
+        </label>
+
+        <label class="admin-campo">
+          <span>Sección</span>
+          <select id="f-seccion">
+            <option value="clasicos">Clásicos (sección verde)</option>
+            <option value="especiales">Especiales (sección papel)</option>
+          </select>
+        </label>
+
+        <p class="admin-campo-titulo">Ingredientes del trago</p>
+        <div class="admin-chips admin-chips--picker" id="f-picker"></div>
+
+        <div class="admin-nuevo">
+          <input id="f-nuevo" type="text" autocomplete="off" placeholder="Nuevo ingrediente…" />
+          <button id="f-agregar-ing" type="button" class="admin-boton admin-boton--secundario">
+            + Agregar
+          </button>
+        </div>
+
+        <label class="admin-campo">
+          <span>Texto que se muestra en la carta</span>
+          <input id="f-texto" type="text" autocomplete="off" placeholder="Se completa solo al elegir ingredientes" />
+        </label>
+
+        <button id="f-guardar" type="button" class="admin-boton">Guardar trago</button>
+        <p class="admin-estado" id="f-msj"></p>
+      </div>
+
       <p class="admin-pie">
         <a class="admin-enlace" href="index.html">← Ver la carta</a>
       </p>
