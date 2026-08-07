@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#013927" />
+    <meta name="robots" content="noindex" />
+    <title>Ingredientes · Cocktail Menu</title>
+    <link rel="stylesheet" href="estilos.css" />
+  </head>
+  <body>
+    <section class="seccion seccion--verde admin">
+      <header class="cabecera cabecera--admin">
+        <h1 class="titulo titulo--admin">INGREDIENTES</h1>
+        <p class="admin-ayuda">
+          Tocá un ingrediente para marcarlo disponible o agotado.
+          Los tragos que usen un ingrediente agotado se muestran en gris en la carta.
+        </p>
+      </header>
+
+      <div class="admin-chips" id="chips">
+        <p class="admin-estado" id="estado">Cargando ingredientes…</p>
+      </div>
+
+      <p class="admin-pie">
+        <a class="admin-enlace" href="index.html">← Ver la carta</a>
+      </p>
+    </section>
+
+    <script src="config.js"></script>
+    <script src="admin.js"></script>
+  </body>
+</html>

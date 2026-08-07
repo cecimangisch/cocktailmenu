@@ -137,6 +137,16 @@ body {
   color: var(--verde);
 }
 
+/* Trago sin ingredientes disponibles: en gris.
+   li.…: especificidad mayor que .trago--verde y que .reveal.visible */
+li.trago--agotado {
+  color: #98a09b;
+}
+
+li.trago--agotado.reveal.visible {
+  opacity: 0.65;
+}
+
 /* ===== Ilustraciones ===== */
 .ilustracion {
   display: flex;
@@ -170,6 +180,87 @@ body {
   display: block;
   width: 100%;
   height: auto;
+}
+
+/* ===== Página de ingredientes (admin.html) ===== */
+.admin {
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding-bottom: 4rem;
+}
+
+.cabecera--admin {
+  margin-bottom: 2rem;
+}
+
+.titulo--admin {
+  font-size: clamp(2rem, 8vw, 4rem);
+}
+
+.admin-ayuda {
+  max-width: 34rem;
+  margin: 1rem auto 0;
+  font-size: 1rem;
+  opacity: 0.8;
+  line-height: 1.45;
+}
+
+.admin-chips {
+  width: min(100%, 44rem);
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.7rem;
+}
+
+.chip {
+  font-family: var(--fuente-sans);
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 0.65rem 1.15rem;
+  border-radius: 999px;
+  border: 2px solid var(--crema);
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    opacity 0.2s ease,
+    transform 0.1s ease;
+}
+
+.chip:active {
+  transform: scale(0.96);
+}
+
+.chip--on {
+  background: var(--crema);
+  color: var(--verde);
+}
+
+.chip--off {
+  background: transparent;
+  color: var(--crema);
+  border-style: dashed;
+  opacity: 0.4;
+  filter: grayscale(1);
+  text-decoration: line-through;
+}
+
+.admin-estado {
+  font-size: 1rem;
+  opacity: 0.7;
+}
+
+.admin-pie {
+  text-align: center;
+  margin-top: 2.5rem;
+}
+
+.admin-enlace {
+  color: var(--crema);
+  font-family: var(--fuente-sans);
+  opacity: 0.7;
 }
 
 /* ===== Animaciones de aparición ===== */

@@ -1,5 +1,7 @@
 // ===== Menú dinámico desde Supabase =====
 // Lee los tragos de la tabla `tragos` y reemplaza las listas estáticas.
+// Si además existen las tablas de ingredientes, los tragos a los que les
+// falta algún ingrediente se muestran en gris (agotados).
 // Si Supabase no está configurado o falla, queda el menú estático del HTML.
 
 function escapar(texto) {
@@ -8,41 +10,68 @@ function escapar(texto) {
   return div.innerHTML;
 }
 
+async function consultar(cfg, ruta) {
+  const url = cfg.url.replace(/\/$/, "") + "/rest/v1/" + ruta;
+  // con las keys nuevas (sb_publishable_...) alcanza el header apikey;
+  // el Bearer solo corresponde a las keys legacy con formato JWT (eyJ...)
+  const headers = { apikey: cfg.anonKey };
+  if (cfg.anonKey.startsWith("eyJ")) {
+    headers.Authorization = "Bearer " + cfg.anonKey;
+  }
+  const respuesta = await fetch(url, { headers });
+  if (!respuesta.ok) throw new Error("HTTP " + respuesta.status + " en " + ruta);
+  return respuesta.json();
+}
+
 async function cargarMenu() {
   const cfg = window.SUPABASE_CONFIG || {};
   if (!cfg.url || !cfg.anonKey) return false;
 
   try {
-    const url =
-      cfg.url.replace(/\/$/, "") +
-      "/rest/v1/tragos" +
-      "?select=seccion,nombre,nota,ingredientes" +
-      "&visible=is.true&order=orden.asc,id.asc";
-    // con las keys nuevas (sb_publishable_...) alcanza el header apikey;
-    // el Bearer solo corresponde a las keys legacy con formato JWT (eyJ...)
-    const headers = { apikey: cfg.anonKey };
-    if (cfg.anonKey.startsWith("eyJ")) {
-      headers.Authorization = "Bearer " + cfg.anonKey;
-    }
-    const respuesta = await fetch(url, { headers });
-    if (!respuesta.ok) throw new Error("HTTP " + respuesta.status);
-    const tragos = await respuesta.json();
+    // las tablas de ingredientes pueden no existir todavía: si fallan,
+    // el menú se muestra completo sin marcar agotados
+    const [tragos, ingredientes, relaciones] = await Promise.all([
+      consultar(
+        cfg,
+        "tragos?select=id,seccion,nombre,nota,ingredientes&visible=is.true&order=orden.asc,id.asc"
+      ),
+      consultar(cfg, "ingredientes?select=id,disponible").catch(() => null),
+      consultar(cfg, "trago_ingredientes?select=trago_id,ingrediente_id").catch(() => null),
+    ]);
     if (!Array.isArray(tragos) || tragos.length === 0) return false;
+
+    let requisitos = null;
+    let enStock = null;
+    if (ingredientes && relaciones) {
+      enStock = new Set(ingredientes.filter((i) => i.disponible).map((i) => i.id));
+      requisitos = new Map();
+      relaciones.forEach((r) => {
+        if (!requisitos.has(r.trago_id)) requisitos.set(r.trago_id, []);
+        requisitos.get(r.trago_id).push(r.ingrediente_id);
+      });
+    }
+
+    const estaDisponible = (trago) => {
+      if (!requisitos) return true;
+      const reqs = requisitos.get(trago.id) || [];
+      return reqs.every((id) => enStock.has(id));
+    };
 
     let cambiado = false;
     document.querySelectorAll(".lista[data-seccion]").forEach((lista) => {
       const seccion = lista.dataset.seccion;
       const items = tragos.filter((t) => t.seccion === seccion);
       if (items.length === 0) return;
-      const claseExtra = seccion === "especiales" ? " trago--verde" : "";
+      const claseVerde = seccion === "especiales" ? " trago--verde" : "";
       lista.innerHTML = items
-        .map(
-          (t) => `
-        <li class="trago${claseExtra} reveal">
+        .map((t) => {
+          const claseAgotado = estaDisponible(t) ? "" : " trago--agotado";
+          return `
+        <li class="trago${claseVerde}${claseAgotado} reveal">
           <h2>${escapar(t.nombre)}${t.nota ? ` <span class="nota">(${escapar(t.nota)})</span>` : ""}</h2>
           <p>${escapar(t.ingredientes)}</p>
-        </li>`
-        )
+        </li>`;
+        })
         .join("");
       cambiado = true;
     });
