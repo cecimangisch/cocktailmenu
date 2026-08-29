@@ -170,6 +170,26 @@ li.trago--agotado.reveal.visible {
   }
 }
 
+/* ===== Pie de la carta ===== */
+.pie {
+  margin-top: 3.5rem;
+  text-align: center;
+}
+
+.pie-enlace {
+  font-size: 0.7rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--verde);
+  opacity: 0.35;
+  text-decoration: none;
+}
+
+.pie-enlace:hover,
+.pie-enlace:focus-visible {
+  opacity: 0.75;
+}
+
 /* ===== Borde de papel rasgado ===== */
 .rasgado {
   background: var(--verde);
