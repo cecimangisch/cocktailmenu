@@ -11,7 +11,7 @@
       href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700;800&family=Monsieur+La+Doulaise&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="estilos.css?v=20260829-9" />
+    <link rel="stylesheet" href="estilos.css?v=20260829-10" />
   </head>
   <body>
     <!-- ===== Sección verde ===== -->
@@ -54,7 +54,7 @@
     </div>
 
     <!-- ===== Sección papel ===== -->
-    <section class="seccion seccion--papel revelar-papel" id="papel">
+    <section class="seccion seccion--papel revelar-rasgado" id="papel">
       <div class="bloque bloque--invertido">
         <figure class="ilustracion ilustracion--limas reveal-ilustracion">
           <img src="img/limas.png" alt="" width="740" height="510" />
@@ -83,13 +83,14 @@
 
     </section>
 
-    <!-- ===== Borde de papel rasgado (papel → verde), sin animación ===== -->
-    <div class="rasgado rasgado--invertido" aria-hidden="true">
+    <!-- ===== Borde de papel rasgado (papel → verde) ===== -->
+    <div class="rasgado rasgado--invertido reveal-rasgado" aria-hidden="true" data-revela="#clasicos">
       <img src="img/rasgado-2.png" alt="" width="2121" height="320" />
     </div>
 
-    <!-- ===== Sección clásicos ===== -->
-    <section class="seccion seccion--verde seccion--clasicos">
+    <!-- ===== Sección clásicos (el papel de atrás queda tapado por el verde) ===== -->
+    <div class="fondo-papel">
+    <section class="seccion seccion--verde seccion--clasicos revelar-rasgado" id="clasicos">
       <div class="bloque">
         <ul class="lista" data-seccion="clasicos">
           <li class="rotulo reveal">Clásicos</li>
@@ -120,6 +121,7 @@
         </figure>
       </div>
     </section>
+    </div>
 
     <!-- ===== Borde de papel rasgado (verde → papel) ===== -->
     <div class="rasgado reveal-rasgado" aria-hidden="true" data-revela="#pie">
@@ -127,7 +129,7 @@
     </div>
 
     <!-- ===== Footer ===== -->
-    <footer class="pie-sitio revelar-papel" id="pie">
+    <footer class="pie-sitio revelar-rasgado" id="pie">
       <button type="button" class="pie-boton" id="abrir-propuesta">
         Proponer un trago
       </button>
@@ -173,7 +175,7 @@
       </div>
     </div>
 
-    <script src="config.js?v=20260829-9"></script>
-    <script src="menu.js?v=20260829-9"></script>
+    <script src="config.js?v=20260829-10"></script>
+    <script src="menu.js?v=20260829-10"></script>
   </body>
 </html>

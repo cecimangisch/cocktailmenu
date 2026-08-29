@@ -377,6 +377,12 @@ li.trago--agotado.reveal.visible {
   background: var(--papel);
 }
 
+/* Capa de papel detrás de Clásicos: al correrse la rotura, el verde la tapa
+   y da la sensación de que se arranca la hoja */
+.fondo-papel {
+  background: var(--papel);
+}
+
 .rasgado img {
   display: block;
   width: 100%;
@@ -849,14 +855,14 @@ li.trago--agotado.reveal.visible {
 
 /* La tela verde se rasga y debajo aparece el papel:
    la sección se destapa de arriba hacia abajo siguiendo a la rotura */
-.revelar-papel {
+.revelar-rasgado {
   /* misma dirección, duración y curva que la rotura, y ambos arrancan en el
      mismo instante: el papel aparece justo detrás del rasgado */
   clip-path: inset(0 100% 0 0);
   transition: clip-path 1.1s cubic-bezier(0.65, 0, 0.35, 1);
 }
 
-.revelar-papel.visible {
+.revelar-rasgado.visible {
   clip-path: inset(0);
 }
 
@@ -875,7 +881,7 @@ li.trago--agotado.reveal.visible {
   .reveal-titulo,
   .reveal-script span,
   .reveal-ilustracion,
-  .revelar-papel,
+  .revelar-rasgado,
   .reveal-rasgado img {
     opacity: 1;
     transform: none;
