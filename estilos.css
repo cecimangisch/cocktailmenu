@@ -847,6 +847,17 @@ li.trago--agotado.reveal.visible {
   transform: none;
 }
 
+/* La tela verde se rasga y debajo aparece el papel:
+   la sección se destapa de arriba hacia abajo siguiendo a la rotura */
+.revelar-papel {
+  clip-path: inset(0 0 100% 0);
+  transition: clip-path 1.2s cubic-bezier(0.33, 1, 0.68, 1) 0.35s;
+}
+
+.revelar-papel.visible {
+  clip-path: inset(0);
+}
+
 /* Papel rasgado: la rotura "viaja" de izquierda a derecha */
 .reveal-rasgado img {
   clip-path: inset(0 100% 0 0);
@@ -862,6 +873,7 @@ li.trago--agotado.reveal.visible {
   .reveal-titulo,
   .reveal-script span,
   .reveal-ilustracion,
+  .revelar-papel,
   .reveal-rasgado img {
     opacity: 1;
     transform: none;

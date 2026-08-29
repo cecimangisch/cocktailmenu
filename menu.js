@@ -93,6 +93,12 @@ const observador = new IntersectionObserver(
     entradas.forEach((entrada) => {
       if (entrada.isIntersecting) {
         entrada.target.classList.add("visible");
+        // el borde rasgado puede destapar otra sección al mismo tiempo
+        const destapa = entrada.target.dataset.revela;
+        if (destapa) {
+          const seccion = document.querySelector(destapa);
+          if (seccion) seccion.classList.add("visible");
+        }
         observador.unobserve(entrada.target);
       }
     });

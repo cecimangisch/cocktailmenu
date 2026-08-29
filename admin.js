@@ -524,7 +524,7 @@ async function consultar(ruta) {
 async function refrescar() {
   const [ingredientes, tragos, relaciones] = await Promise.all([
     consultar("ingredientes?select=id,nombre,disponible&order=nombre.asc"),
-    consultar("tragos?select=id,seccion,nombre,nota,ingredientes,visible&order=seccion.asc,orden.asc,id.asc"),
+    consultar("tragos?select=id,seccion,nombre,nota,ingredientes,visible&order=nombre.asc"),
     consultar("trago_ingredientes?select=trago_id,ingrediente_id"),
   ]);
 
