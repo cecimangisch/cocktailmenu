@@ -131,11 +131,12 @@ function pintar(boton, disponible) {
   boton.setAttribute("aria-pressed", disponible ? "true" : "false");
 }
 
-function crearChipDisponibilidad(ing) {
+function crearChipDisponibilidad(ing, sinUso) {
   const boton = document.createElement("button");
   boton.type = "button";
-  boton.className = "chip";
+  boton.className = "chip" + (sinUso ? " chip--sinuso" : "");
   boton.textContent = ing.nombre;
+  if (sinUso) boton.title = "Ningún trago usa este ingrediente";
   pintar(boton, ing.disponible);
   boton.addEventListener("click", async () => {
     const nuevo = !ing.disponible;
@@ -143,15 +144,100 @@ function crearChipDisponibilidad(ing) {
     boton.disabled = true;
     const r = await rpc("marcar_ingrediente", { p_id: ing.id, p_disponible: nuevo }).catch(() => ({ ok: false }));
     boton.disabled = false;
-    if (r.ok) ing.disponible = nuevo;
-    else pintar(boton, ing.disponible); // revertir
+    if (r.ok) {
+      ing.disponible = nuevo;
+      actualizarAccionesIngredientes();
+    } else {
+      pintar(boton, ing.disponible); // revertir
+    }
   });
   return boton;
 }
 
+// ===== Lista del súper e ingredientes sin uso =====
+
+const btnSuper = document.getElementById("btn-super");
+const btnLimpiar = document.getElementById("btn-limpiar");
+const msjIng = document.getElementById("msj-ing");
+let datos = { ingredientes: [], tragos: [], ingredientesPorTrago: new Map(), sinUso: new Set() };
+
+function actualizarAccionesIngredientes() {
+  const faltan = datos.ingredientes.filter((i) => !i.disponible);
+  btnSuper.classList.toggle("oculto", faltan.length === 0);
+  btnSuper.textContent = `🛒 Copiar lista del súper (${faltan.length})`;
+  btnLimpiar.classList.toggle("oculto", datos.sinUso.size === 0);
+  btnLimpiar.textContent = `Limpiar sin uso (${datos.sinUso.size})`;
+}
+
+function textoListaSuper() {
+  const faltan = datos.ingredientes.filter((i) => !i.disponible).map((i) => i.nombre);
+  const faltanSet = new Set(faltan);
+
+  // tragos que vuelven a estar disponibles si comprás todo eso
+  const vuelven = datos.tragos
+    .filter((t) => {
+      if (!t.visible) return false;
+      const reqs = datos.ingredientesPorTrago.get(t.id) || [];
+      return reqs.length > 0 && reqs.some((n) => faltanSet.has(n));
+    })
+    .map((t) => t.nombre);
+
+  let texto = "🛒 Lista del súper\n\n" + faltan.map((n) => "- " + n).join("\n");
+  if (vuelven.length > 0) {
+    texto += "\n\nCon esto vuelven: " + vuelven.join(", ");
+  }
+  return texto;
+}
+
+async function copiar(texto) {
+  try {
+    await navigator.clipboard.writeText(texto);
+    return true;
+  } catch (e) {
+    // navegadores viejos o sin permiso de portapapeles
+    const area = document.createElement("textarea");
+    area.value = texto;
+    area.style.position = "fixed";
+    area.style.opacity = "0";
+    document.body.appendChild(area);
+    area.select();
+    let ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e2) {}
+    area.remove();
+    return ok;
+  }
+}
+
+btnSuper.addEventListener("click", async () => {
+  const texto = textoListaSuper();
+  const ok = await copiar(texto);
+  msjIng.textContent = ok
+    ? "Lista copiada, ya la podés pegar donde quieras."
+    : "No se pudo copiar. Copiala a mano:\n" + texto;
+  if (ok) setTimeout(() => (msjIng.textContent = ""), 4000);
+});
+
+btnLimpiar.addEventListener("click", async () => {
+  const cuantos = datos.sinUso.size;
+  const nombres = [...datos.sinUso].join(", ");
+  if (!confirm(`¿Eliminar ${cuantos} ingrediente(s) que ningún trago usa?\n\n${nombres}`)) return;
+  btnLimpiar.disabled = true;
+  const r = await rpc("eliminar_ingredientes_sin_uso", {}).catch(() => ({ ok: false }));
+  btnLimpiar.disabled = false;
+  if (r.ok) {
+    msjIng.textContent = `Listo, se eliminaron ${r.datos ?? cuantos} ingrediente(s).`;
+    await refrescar();
+    setTimeout(() => (msjIng.textContent = ""), 4000);
+  } else {
+    msjIng.textContent = "No se pudo limpiar." + (r.detalle ? " " + r.detalle : "");
+  }
+});
+
 // ===== Lista de tragos =====
 
-const nombreSeccion = { clasicos: "Clásicos", especiales: "Especiales" };
+const nombreSeccion = { cocktails: "Cocktails", autor: "De autor", clasicos: "Clásicos" };
 
 function filaTrago(trago, ingredientesPorTrago) {
   const li = document.createElement("li");
@@ -450,13 +536,21 @@ async function refrescar() {
     if (nombre) ingredientesPorTrago.get(r.trago_id).push(nombre);
   });
 
+  // ingredientes que ya no usa ningún trago
+  const usados = new Set(relaciones.map((r) => r.ingrediente_id));
+  const sinUso = new Set(
+    ingredientes.filter((i) => !usados.has(i.id)).map((i) => i.nombre)
+  );
+  datos = { ingredientes, tragos, ingredientesPorTrago, sinUso };
+
   contenedor.querySelectorAll(".chip").forEach((c) => c.remove());
   picker.innerHTML = "";
   ingredientes.forEach((ing) => {
-    contenedor.appendChild(crearChipDisponibilidad(ing));
+    contenedor.appendChild(crearChipDisponibilidad(ing, sinUso.has(ing.nombre)));
     picker.appendChild(crearChipPicker(ing.nombre));
   });
   sincronizarPicker();
+  actualizarAccionesIngredientes();
 
   listaTragos.innerHTML = "";
   tragos.forEach((t) => listaTragos.appendChild(filaTrago(t, ingredientesPorTrago)));

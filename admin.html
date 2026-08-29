@@ -49,6 +49,20 @@
         <div class="admin-chips" id="chips">
           <p class="admin-estado" id="estado">Cargando ingredientes…</p>
         </div>
+
+        <div class="admin-acciones-ing">
+          <button type="button" class="admin-boton oculto" id="btn-super">
+            🛒 Copiar lista del súper
+          </button>
+          <button
+            type="button"
+            class="admin-boton admin-boton--secundario oculto"
+            id="btn-limpiar"
+          >
+            Limpiar sin uso
+          </button>
+        </div>
+        <p class="admin-estado" id="msj-ing"></p>
       </div>
 
       <!-- Pestaña: propuestas -->
@@ -85,8 +99,9 @@
         <label class="admin-campo">
           <span>Sección</span>
           <select id="f-seccion">
-            <option value="clasicos">Clásicos (sección verde)</option>
-            <option value="especiales">Especiales (sección papel)</option>
+            <option value="cocktails">Cocktails (sección verde)</option>
+            <option value="autor">De autor (sección papel)</option>
+            <option value="clasicos">Clásicos (los básicos)</option>
           </select>
         </label>
 

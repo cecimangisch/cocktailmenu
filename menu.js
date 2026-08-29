@@ -62,17 +62,21 @@ async function cargarMenu() {
       const seccion = lista.dataset.seccion;
       const items = tragos.filter((t) => t.seccion === seccion);
       if (items.length === 0) return;
-      const claseVerde = seccion === "especiales" ? " trago--verde" : "";
-      lista.innerHTML = items
-        .map((t) => {
-          const claseAgotado = estaDisponible(t) ? "" : " trago--agotado";
-          return `
+      // los cocktails van sobre el fondo verde; el resto sobre el papel
+      const claseVerde = seccion === "cocktails" ? "" : " trago--verde";
+      const rotulo = lista.querySelector(".rotulo");
+      lista.innerHTML =
+        (rotulo ? rotulo.outerHTML.replace(" visible", "") : "") +
+        items
+          .map((t) => {
+            const claseAgotado = estaDisponible(t) ? "" : " trago--agotado";
+            return `
         <li class="trago${claseVerde}${claseAgotado} reveal">
           <h2>${escapar(t.nombre)}${t.nota ? ` <span class="nota">(${escapar(t.nota)})</span>` : ""}</h2>
           <p>${escapar(t.ingredientes)}</p>
         </li>`;
-        })
-        .join("");
+          })
+          .join("");
       cambiado = true;
     });
     return cambiado;
