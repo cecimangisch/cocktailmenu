@@ -204,15 +204,15 @@ li.trago--agotado.reveal.visible {
 }
 
 .pie-boton {
-  font-family: var(--fuente-sans);
-  font-size: 0.95rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
+  font-family: var(--fuente-script);
+  font-size: clamp(1.9rem, 7vw, 2.5rem);
+  font-weight: 400;
+  line-height: 1;
   color: var(--verde);
   background: transparent;
   border: 2px solid var(--verde);
   border-radius: 999px;
-  padding: 0.75rem 1.6rem;
+  padding: 0.5rem 1.8rem 0.75rem;
   cursor: pointer;
   transition:
     background 0.2s ease,
@@ -377,11 +377,6 @@ li.trago--agotado.reveal.visible {
   background: var(--papel);
 }
 
-/* Capa de papel detrás de Clásicos: al correrse la rotura, el verde la tapa
-   y da la sensación de que se arranca la hoja */
-.fondo-papel {
-  background: var(--papel);
-}
 
 .rasgado img {
   display: block;
