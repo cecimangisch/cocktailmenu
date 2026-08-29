@@ -290,10 +290,13 @@ li.trago--agotado.reveal.visible {
 }
 
 .modal-titulo {
-  font-size: 1.35rem;
-  font-weight: 700;
-  letter-spacing: 0.03em;
+  font-family: var(--fuente-script);
+  font-size: clamp(2.4rem, 11vw, 3.2rem);
+  font-weight: 400;
+  line-height: 1;
   text-align: center;
+  /* las cursivas se inclinan a la derecha: un poco de sangría las centra ópticamente */
+  padding: 0.1rem 0 0.2rem 0.4rem;
 }
 
 .modal-texto {
