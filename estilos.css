@@ -170,24 +170,178 @@ li.trago--agotado.reveal.visible {
   }
 }
 
-/* ===== Pie de la carta ===== */
-.pie {
-  margin-top: 3.5rem;
+/* ===== Footer del sitio ===== */
+.pie-sitio {
+  background: var(--verde);
+  color: var(--crema);
+  text-align: center;
+  padding: 3rem 1.5rem max(2.5rem, env(safe-area-inset-bottom));
+  padding-left: max(1.5rem, env(safe-area-inset-left));
+  padding-right: max(1.5rem, env(safe-area-inset-right));
+}
+
+.pie-boton {
+  font-family: var(--fuente-sans);
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--crema);
+  background: transparent;
+  border: 2px solid var(--crema);
+  border-radius: 999px;
+  padding: 0.75rem 1.6rem;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    transform 0.1s ease;
+}
+
+.pie-boton:hover,
+.pie-boton:focus-visible {
+  background: var(--crema);
+  color: var(--verde);
+}
+
+.pie-boton:active {
+  transform: scale(0.97);
+}
+
+.pie-legal {
+  margin-top: 2rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.45;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.pie-marca {
+  font-weight: 700;
+}
+
+.pie-legal a {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(253, 245, 229, 0.4);
+}
+
+.pie-legal a:hover,
+.pie-legal a:focus-visible {
+  border-bottom-color: var(--crema);
+}
+
+/* ===== Ventana de propuesta ===== */
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  background: rgba(1, 25, 17, 0.75);
+  display: grid;
+  place-items: center;
+  padding: 1.25rem;
+  overflow-y: auto;
+  animation: modal-entra 0.25s ease-out;
+}
+
+@keyframes modal-entra {
+  from {
+    opacity: 0;
+  }
+}
+
+.modal-caja {
+  width: min(100%, 27rem);
+  background: var(--verde);
+  border: 2px solid rgba(253, 245, 229, 0.35);
+  border-radius: 1rem;
+  padding: 1.75rem 1.5rem;
+  text-align: left;
+  display: grid;
+  gap: 0.9rem;
+}
+
+.modal-titulo {
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
   text-align: center;
 }
 
-.pie-enlace {
-  font-size: 0.7rem;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: var(--verde);
-  opacity: 0.35;
-  text-decoration: none;
+.modal-texto {
+  font-size: 0.95rem;
+  line-height: 1.45;
+  opacity: 0.8;
+  text-align: center;
+  margin-bottom: 0.3rem;
 }
 
-.pie-enlace:hover,
-.pie-enlace:focus-visible {
-  opacity: 0.75;
+.modal-campo {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.modal-campo span {
+  font-size: 0.85rem;
+  font-weight: 700;
+  opacity: 0.85;
+}
+
+.modal-campo input {
+  font-family: var(--fuente-sans);
+  font-size: 1rem;
+  color: var(--crema);
+  background: rgba(253, 245, 229, 0.08);
+  border: 2px solid rgba(253, 245, 229, 0.4);
+  border-radius: 0.6rem;
+  padding: 0.65rem 0.85rem;
+  width: 100%;
+}
+
+.modal-campo input::placeholder {
+  color: rgba(253, 245, 229, 0.4);
+}
+
+.modal-campo input:focus {
+  outline: none;
+  border-color: var(--crema);
+}
+
+.modal-estado {
+  font-size: 0.9rem;
+  min-height: 1.2em;
+  opacity: 0.85;
+  text-align: center;
+}
+
+.modal-acciones {
+  display: flex;
+  gap: 0.7rem;
+}
+
+.modal-boton {
+  flex: 1;
+  font-family: var(--fuente-sans);
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 0.75rem 1rem;
+  border-radius: 0.6rem;
+  border: 2px solid var(--crema);
+  background: var(--crema);
+  color: var(--verde);
+  cursor: pointer;
+}
+
+.modal-boton:disabled {
+  opacity: 0.55;
+}
+
+.modal-boton--secundario {
+  background: transparent;
+  color: var(--crema);
 }
 
 /* ===== Borde de papel rasgado ===== */
@@ -301,12 +455,79 @@ li.trago--agotado.reveal.visible {
   border-color: var(--crema);
 }
 
+/* ===== Pestañas ===== */
+.tabs {
+  width: min(100%, 44rem);
+  margin: 0 auto 2rem;
+  display: flex;
+  gap: 0.4rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.tab {
+  font-family: var(--fuente-sans);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--crema);
+  background: transparent;
+  border: 2px solid rgba(253, 245, 229, 0.3);
+  border-radius: 999px;
+  padding: 0.5rem 1.1rem;
+  cursor: pointer;
+  opacity: 0.6;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  transition:
+    opacity 0.2s ease,
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+.tab--activa {
+  background: var(--crema);
+  border-color: var(--crema);
+  color: var(--verde);
+  opacity: 1;
+}
+
+.tab-globo {
+  font-size: 0.72rem;
+  font-weight: 700;
+  min-width: 1.35rem;
+  height: 1.35rem;
+  padding: 0 0.35rem;
+  border-radius: 999px;
+  background: #e8a9a0;
+  color: var(--verde);
+  display: inline-grid;
+  place-items: center;
+}
+
+.tab-panel {
+  width: min(100%, 44rem);
+  margin: 0 auto;
+}
+
 /* ===== Lista de tragos ===== */
 .admin-tragos {
   width: min(100%, 44rem);
   margin: 3.5rem auto 0;
   padding-top: 2.5rem;
   border-top: 1px solid rgba(253, 245, 229, 0.25);
+}
+
+.admin-tragos--tab {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+}
+
+.trago-fila-meta {
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-size: 0.75em;
 }
 
 .admin-tragos .admin-ayuda {

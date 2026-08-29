@@ -28,19 +28,41 @@
     <!-- ===== Panel (visible tras validar la clave) ===== -->
     <section class="seccion seccion--verde admin oculto" id="panel">
       <header class="cabecera cabecera--admin">
-        <h1 class="titulo titulo--admin">INGREDIENTES</h1>
+        <h1 class="titulo titulo--admin">ADMIN</h1>
+      </header>
+
+      <nav class="tabs" id="tabs">
+        <button type="button" class="tab tab--activa" data-tab="ingredientes">Ingredientes</button>
+        <button type="button" class="tab" data-tab="tragos">Tragos</button>
+        <button type="button" class="tab" data-tab="propuestas">
+          Propuestas <span class="tab-globo oculto" id="globo-propuestas">0</span>
+        </button>
+      </nav>
+
+      <!-- Pestaña: ingredientes -->
+      <div class="tab-panel" data-panel="ingredientes">
         <p class="admin-ayuda">
           Tocá un ingrediente para marcarlo disponible o agotado.
           Los tragos que usen un ingrediente agotado se muestran en gris en la carta.
         </p>
-      </header>
 
-      <div class="admin-chips" id="chips">
-        <p class="admin-estado" id="estado">Cargando ingredientes…</p>
+        <div class="admin-chips" id="chips">
+          <p class="admin-estado" id="estado">Cargando ingredientes…</p>
+        </div>
       </div>
 
-      <div class="admin-tragos">
-        <h2 class="admin-subtitulo">TRAGOS</h2>
+      <!-- Pestaña: propuestas -->
+      <div class="tab-panel oculto" data-panel="propuestas">
+        <p class="admin-ayuda">
+          Ideas que dejaron los invitados desde la carta.
+          «Usar» la carga en el formulario de tragos para que la completes.
+        </p>
+        <ul class="admin-lista-tragos" id="lista-propuestas"></ul>
+      </div>
+
+      <!-- Pestaña: tragos -->
+      <div class="tab-panel oculto" data-panel="tragos">
+      <div class="admin-tragos admin-tragos--tab">
         <p class="admin-ayuda">
           Editá, pausá (lo saca de la carta sin borrarlo) o eliminá cada trago.
         </p>
@@ -88,6 +110,7 @@
           Cancelar edición
         </button>
         <p class="admin-estado" id="f-msj"></p>
+      </div>
       </div>
 
       <p class="admin-pie">

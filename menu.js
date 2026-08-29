@@ -115,3 +115,80 @@ animar();
 cargarMenu().then((cambiado) => {
   if (cambiado) animar();
 });
+
+// ===== Proponer un trago =====
+
+const modal = document.getElementById("modal-propuesta");
+
+if (modal) {
+  const abrir = document.getElementById("abrir-propuesta");
+  const cerrar = document.getElementById("p-cerrar");
+  const enviar = document.getElementById("p-enviar");
+  const campos = {
+    nombre: document.getElementById("p-nombre"),
+    ingredientes: document.getElementById("p-ingredientes"),
+    autor: document.getElementById("p-autor"),
+  };
+  const msj = document.getElementById("p-msj");
+
+  function abrirModal() {
+    modal.classList.remove("oculto");
+    document.body.style.overflow = "hidden";
+    campos.nombre.focus();
+  }
+
+  function cerrarModal() {
+    modal.classList.add("oculto");
+    document.body.style.overflow = "";
+    msj.textContent = "";
+    enviar.disabled = false;
+    enviar.textContent = "Enviar propuesta";
+  }
+
+  abrir.addEventListener("click", abrirModal);
+  cerrar.addEventListener("click", cerrarModal);
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) cerrarModal();
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !modal.classList.contains("oculto")) cerrarModal();
+  });
+
+  enviar.addEventListener("click", async () => {
+    const cfg = window.SUPABASE_CONFIG || {};
+    const nombre = campos.nombre.value.trim();
+    if (!nombre) {
+      msj.textContent = "Poné al menos el nombre del trago.";
+      return;
+    }
+    if (!cfg.url || !cfg.anonKey) {
+      msj.textContent = "No se pueden recibir propuestas por ahora.";
+      return;
+    }
+
+    enviar.disabled = true;
+    msj.textContent = "Enviando…";
+    try {
+      const headers = { apikey: cfg.anonKey, "Content-Type": "application/json" };
+      if (cfg.anonKey.startsWith("eyJ")) headers.Authorization = "Bearer " + cfg.anonKey;
+      const respuesta = await fetch(cfg.url.replace(/\/$/, "") + "/rest/v1/rpc/proponer_trago", {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          p_nombre: nombre,
+          p_ingredientes: campos.ingredientes.value.trim() || null,
+          p_autor: campos.autor.value.trim() || null,
+        }),
+      });
+      if (!respuesta.ok) throw new Error("HTTP " + respuesta.status);
+
+      msj.textContent = "¡Gracias! Tu propuesta quedó anotada.";
+      enviar.textContent = "Enviada ✓";
+      Object.values(campos).forEach((c) => (c.value = ""));
+      setTimeout(cerrarModal, 1800);
+    } catch (error) {
+      enviar.disabled = false;
+      msj.textContent = "No se pudo enviar. Probá de nuevo en un rato.";
+    }
+  });
+}

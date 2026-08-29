@@ -58,8 +58,28 @@ async function rpc(nombre, cuerpo) {
     }
     return { ok: false, detalle };
   }
-  return { ok: true };
+  let datos = null;
+  try {
+    datos = await respuesta.json();
+  } catch (e) {}
+  return { ok: true, datos };
 }
+
+// ===== Pestañas =====
+
+function mostrarTab(nombre) {
+  document.querySelectorAll(".tab").forEach((t) => {
+    t.classList.toggle("tab--activa", t.dataset.tab === nombre);
+  });
+  document.querySelectorAll(".tab-panel").forEach((p) => {
+    p.classList.toggle("oculto", p.dataset.panel !== nombre);
+  });
+}
+
+document.getElementById("tabs").addEventListener("click", (e) => {
+  const tab = e.target.closest(".tab");
+  if (tab) mostrarTab(tab.dataset.tab);
+});
 
 // ===== Entrada con clave =====
 
@@ -186,11 +206,80 @@ function filaTrago(trago, ingredientesPorTrago) {
   return li;
 }
 
+// ===== Propuestas de los invitados =====
+
+const listaPropuestas = document.getElementById("lista-propuestas");
+const globoPropuestas = document.getElementById("globo-propuestas");
+
+function filaPropuesta(propuesta) {
+  const li = document.createElement("li");
+  li.className = "trago-fila";
+
+  const fecha = new Date(propuesta.creada_en).toLocaleDateString("es-AR", {
+    day: "numeric",
+    month: "short",
+  });
+
+  const info = document.createElement("div");
+  info.className = "trago-fila-info";
+  info.innerHTML =
+    `<strong>${propuesta.nombre}</strong>` +
+    (propuesta.ingredientes ? `<br /><small>${propuesta.ingredientes}</small>` : "") +
+    `<br /><small class="trago-fila-meta">${propuesta.autor ? "de " + propuesta.autor + " · " : ""}${fecha}</small>`;
+
+  const acciones = document.createElement("div");
+  acciones.className = "trago-fila-acciones";
+
+  const bUsar = document.createElement("button");
+  bUsar.type = "button";
+  bUsar.className = "admin-boton admin-boton--mini admin-boton--secundario";
+  bUsar.textContent = "Usar";
+  bUsar.addEventListener("click", () => usarPropuesta(propuesta));
+
+  const bDescartar = document.createElement("button");
+  bDescartar.type = "button";
+  bDescartar.className = "admin-boton admin-boton--mini admin-boton--peligro";
+  bDescartar.textContent = "Descartar";
+  bDescartar.addEventListener("click", async () => {
+    bDescartar.disabled = true;
+    const r = await rpc("resolver_propuesta", { p_id: propuesta.id, p_estado: "descartada" }).catch(() => ({ ok: false }));
+    bDescartar.disabled = false;
+    if (r.ok) await cargarPropuestas();
+    else alert("No se pudo descartar." + (r.detalle ? " " + r.detalle : ""));
+  });
+
+  acciones.append(bUsar, bDescartar);
+  li.append(info, acciones);
+  return li;
+}
+
+async function cargarPropuestas() {
+  const r = await rpc("listar_propuestas", {}).catch(() => ({ ok: false }));
+  listaPropuestas.innerHTML = "";
+  if (!r.ok) {
+    // la tabla puede no existir todavía (falta correr el SQL)
+    listaPropuestas.innerHTML =
+      '<li class="admin-estado">No se pudieron cargar las propuestas. ¿Ejecutaste supabase-propuestas.sql?</li>';
+    globoPropuestas.classList.add("oculto");
+    return;
+  }
+  const propuestas = r.datos || [];
+  if (propuestas.length === 0) {
+    listaPropuestas.innerHTML = '<li class="admin-estado">No hay propuestas pendientes.</li>';
+    globoPropuestas.classList.add("oculto");
+    return;
+  }
+  propuestas.forEach((p) => listaPropuestas.appendChild(filaPropuesta(p)));
+  globoPropuestas.textContent = propuestas.length;
+  globoPropuestas.classList.remove("oculto");
+}
+
 // ===== Formulario (agregar y editar) =====
 
 const seleccion = new Set(); // nombres de ingredientes elegidos
 let textoEditado = false; // true si el campo de texto se tocó a mano
 let editandoId = null; // id del trago en edición, o null si es alta
+let propuestaOrigenId = null; // propuesta que dio origen al trago que se está cargando
 
 function actualizarTexto() {
   if (!textoEditado) campoTexto.value = [...seleccion].join(", ");
@@ -238,8 +327,24 @@ function empezarEdicion(trago, ingredientesPorTrago) {
   document.getElementById("form-trago").scrollIntoView({ behavior: "smooth" });
 }
 
+function usarPropuesta(propuesta) {
+  cancelarEdicion();
+  propuestaOrigenId = propuesta.id;
+  campoNombre.value = propuesta.nombre;
+  if (propuesta.ingredientes) {
+    campoTexto.value = propuesta.ingredientes;
+    textoEditado = true;
+  }
+  formTitulo.textContent = "AGREGAR TRAGO PROPUESTO";
+  mensaje.textContent = "Elegí los ingredientes reales y guardá.";
+  botonCancelar.classList.remove("oculto");
+  mostrarTab("tragos");
+  document.getElementById("form-trago").scrollIntoView({ behavior: "smooth" });
+}
+
 function cancelarEdicion() {
   editandoId = null;
+  propuestaOrigenId = null;
   campoNombre.value = "";
   campoNota.value = "";
   campoTexto.value = "";
@@ -309,8 +414,11 @@ botonGuardar.addEventListener("click", async () => {
 
   if (r.ok) {
     const verbo = editandoId ? "actualizado" : "agregado";
+    const origen = propuestaOrigenId;
     cancelarEdicion();
     mensaje.textContent = `Listo: "${nombre}" ${verbo}.`;
+    // si venía de una propuesta, queda marcada como aprobada
+    if (origen) await rpc("resolver_propuesta", { p_id: origen, p_estado: "aprobada" }).catch(() => {});
     await refrescar();
   } else {
     mensaje.textContent = "No se pudo guardar." + (r.detalle ? " " + r.detalle : "");
@@ -352,6 +460,8 @@ async function refrescar() {
 
   listaTragos.innerHTML = "";
   tragos.forEach((t) => listaTragos.appendChild(filaTrago(t, ingredientesPorTrago)));
+
+  await cargarPropuestas();
 
   if (estado.isConnected) {
     if (ingredientes.length > 0) estado.remove();

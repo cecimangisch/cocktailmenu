@@ -78,11 +78,54 @@
           </li>
         </ul>
       </div>
-
-      <footer class="pie">
-        <a class="pie-enlace" href="admin.html">admin</a>
-      </footer>
     </section>
+
+    <!-- ===== Footer ===== -->
+    <footer class="pie-sitio">
+      <button type="button" class="pie-boton" id="abrir-propuesta">
+        Proponer un trago
+      </button>
+
+      <p class="pie-legal">
+        <span class="pie-marca">Rogelito Inc</span>
+        <span aria-hidden="true">·</span>
+        <span>© 2026</span>
+        <span aria-hidden="true">·</span>
+        <a href="admin.html">Admin</a>
+      </p>
+    </footer>
+
+    <!-- ===== Ventana: proponer un trago ===== -->
+    <div class="modal oculto" id="modal-propuesta" role="dialog" aria-modal="true" aria-labelledby="modal-titulo">
+      <div class="modal-caja">
+        <h2 class="modal-titulo" id="modal-titulo">PROPONER UN TRAGO</h2>
+        <p class="modal-texto">
+          ¿Se te ocurre algo rico? Dejanos tu idea y quizás aparezca en la próxima carta.
+        </p>
+
+        <label class="modal-campo">
+          <span>Nombre del trago</span>
+          <input id="p-nombre" type="text" autocomplete="off" maxlength="60" placeholder="Mojito de maracuyá" />
+        </label>
+
+        <label class="modal-campo">
+          <span>Ingredientes (opcional)</span>
+          <input id="p-ingredientes" type="text" autocomplete="off" maxlength="200" placeholder="Ron, maracuyá, menta, lima" />
+        </label>
+
+        <label class="modal-campo">
+          <span>Tu nombre (opcional)</span>
+          <input id="p-autor" type="text" autocomplete="off" maxlength="40" placeholder="Luqui" />
+        </label>
+
+        <p class="modal-estado" id="p-msj"></p>
+
+        <div class="modal-acciones">
+          <button type="button" class="modal-boton modal-boton--secundario" id="p-cerrar">Cancelar</button>
+          <button type="button" class="modal-boton" id="p-enviar">Enviar propuesta</button>
+        </div>
+      </div>
+    </div>
 
     <script src="config.js"></script>
     <script src="menu.js"></script>
