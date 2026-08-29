@@ -850,8 +850,10 @@ li.trago--agotado.reveal.visible {
 /* La tela verde se rasga y debajo aparece el papel:
    la sección se destapa de arriba hacia abajo siguiendo a la rotura */
 .revelar-papel {
-  clip-path: inset(0 0 100% 0);
-  transition: clip-path 1.2s cubic-bezier(0.33, 1, 0.68, 1) 0.35s;
+  /* misma dirección, duración y curva que la rotura, y ambos arrancan en el
+     mismo instante: el papel aparece justo detrás del rasgado */
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path 1.1s cubic-bezier(0.65, 0, 0.35, 1);
 }
 
 .revelar-papel.visible {
