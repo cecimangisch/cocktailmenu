@@ -62,8 +62,8 @@ async function cargarMenu() {
       const seccion = lista.dataset.seccion;
       const items = tragos.filter((t) => t.seccion === seccion);
       if (items.length === 0) return;
-      // los cocktails van sobre el fondo verde; el resto sobre el papel
-      const claseVerde = seccion === "cocktails" ? "" : " trago--verde";
+      // solo la sección de autor va sobre el papel; el resto sobre el verde
+      const claseVerde = seccion === "autor" ? " trago--verde" : "";
       const rotulo = lista.querySelector(".rotulo");
       lista.innerHTML =
         (rotulo ? rotulo.outerHTML.replace(" visible", "") : "") +

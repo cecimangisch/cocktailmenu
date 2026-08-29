@@ -11,7 +11,7 @@
       href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700;800&family=Monsieur+La+Doulaise&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="estilos.css?v=20260829" />
+    <link rel="stylesheet" href="estilos.css?v=20260829-2" />
   </head>
   <body>
     <!-- ===== Sección verde ===== -->
@@ -81,30 +81,45 @@
         </ul>
       </div>
 
-      <div class="bloque bloque--simple">
-        <ul class="lista lista--dos" data-seccion="clasicos">
-          <li class="rotulo rotulo--verde reveal">Clásicos</li>
-          <li class="trago trago--verde reveal">
+    </section>
+
+    <!-- ===== Borde de papel rasgado (papel → verde) ===== -->
+    <div class="rasgado rasgado--invertido reveal-rasgado" aria-hidden="true">
+      <img src="img/rasgado-2.png" alt="" width="2121" height="320" />
+    </div>
+
+    <!-- ===== Sección clásicos ===== -->
+    <section class="seccion seccion--verde seccion--clasicos">
+      <div class="bloque">
+        <ul class="lista" data-seccion="clasicos">
+          <li class="rotulo reveal">Clásicos</li>
+          <li class="trago reveal">
             <h2>CUBA LIBRE</h2>
             <p>Ron blanco, Coca, lima</p>
           </li>
-          <li class="trago trago--verde reveal">
+          <li class="trago reveal">
             <h2>FERNET CON COCA</h2>
             <p>Fernet, Coca</p>
           </li>
-          <li class="trago trago--verde reveal">
+          <li class="trago reveal">
             <h2>VODKA TONIC</h2>
             <p>Vodka, Tónica, lima</p>
           </li>
-          <li class="trago trago--verde reveal">
+          <li class="trago reveal">
             <h2>CAMPARI TONIC</h2>
             <p>Campari, Tónica, naranja</p>
           </li>
-          <li class="trago trago--verde reveal">
+          <li class="trago reveal">
             <h2>WHISKY CON COCA</h2>
             <p>Whisky, Coca</p>
           </li>
         </ul>
+
+        <!-- Acá va la ilustración del vaso cuando esté el PNG:
+        <figure class="ilustracion ilustracion--vaso reveal-ilustracion">
+          <img src="img/vaso.png" alt="" />
+        </figure>
+        -->
       </div>
     </section>
 
@@ -155,7 +170,7 @@
       </div>
     </div>
 
-    <script src="config.js?v=20260829"></script>
-    <script src="menu.js?v=20260829"></script>
+    <script src="config.js?v=20260829-2"></script>
+    <script src="menu.js?v=20260829-2"></script>
   </body>
 </html>

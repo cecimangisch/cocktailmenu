@@ -62,7 +62,12 @@ body {
   background: var(--papel);
   color: var(--verde);
   padding-top: 1.5rem;
-  padding-bottom: max(4rem, env(safe-area-inset-bottom));
+  padding-bottom: 4rem;
+}
+
+.seccion--clasicos {
+  padding-top: 1.5rem;
+  padding-bottom: 3.5rem;
 }
 
 /* ===== Cabecera ===== */
@@ -111,21 +116,6 @@ body {
   padding: 0;
   display: grid;
   gap: clamp(1.6rem, 4vw, 2.4rem);
-}
-
-.bloque--simple {
-  display: block;
-  margin-top: clamp(3rem, 9vw, 5rem);
-}
-
-@media (min-width: 640px) {
-  .lista--dos {
-    grid-template-columns: 1fr 1fr;
-    column-gap: 2.5rem;
-  }
-  .lista--dos .rotulo {
-    grid-column: 1 / -1;
-  }
 }
 
 /* Rótulo de sección */
@@ -190,6 +180,10 @@ li.trago--agotado.reveal.visible {
 
 .ilustracion--limas img {
   width: clamp(13rem, 55vw, 24rem);
+}
+
+.ilustracion--vaso img {
+  width: clamp(10rem, 42vw, 17rem);
 }
 
 /* En una columna (móvil), la copa va después de los tragos y las limas antes */
@@ -377,6 +371,10 @@ li.trago--agotado.reveal.visible {
 .rasgado {
   background: var(--verde);
   line-height: 0;
+}
+
+.rasgado--invertido {
+  background: var(--papel);
 }
 
 .rasgado img {
