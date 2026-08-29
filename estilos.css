@@ -183,7 +183,7 @@ li.trago--agotado.reveal.visible {
 }
 
 .ilustracion--vaso img {
-  width: clamp(10rem, 42vw, 17rem);
+  width: clamp(12rem, 52vw, 22rem);
 }
 
 /* En una columna (móvil), la copa va después de los tragos y las limas antes */
